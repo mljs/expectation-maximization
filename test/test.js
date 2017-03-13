@@ -2,11 +2,19 @@
 
 const ExpectationMaximization = require('..');
 const MG = require('../src/MultivariateGaussian');
+const Matrix = require('ml-matrix');
 
 describe('ml-expectation-maximization test', function () {
 
     it('Something to test', function () {
-        (true).should.be.equal(true);
+        var a = new Matrix([
+            [3, 4],
+            [5, 6]
+        ]);
+
+        var b = a.clone();
+
+        var c = Matrix.add(a, b);
     });
 });
 
