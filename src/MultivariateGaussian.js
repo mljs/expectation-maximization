@@ -22,8 +22,7 @@ class MultivariateGaussian {
     }
 
     probability(point) {
-        point = Matrix.rowVector(point);
-        var delta = point.sub(this.mu);
+        var delta = Matrix.rowVector(point).sub(this.mu);
 
         var P = 0;
         for(var i = 0; i < this.k; i++) {
