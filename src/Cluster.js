@@ -2,7 +2,7 @@
 
 var Gaussian = require('./MultivariateGaussian');
 
-class Group {
+class Cluster {
     constructor(weight, mu, sigma) {
         this.weight = weight;
         this.gaussian = new Gaussian({
@@ -15,3 +15,5 @@ class Group {
         return this.weight * this.gaussian.probability(point);
     }
 }
+
+module.exports = Cluster;
