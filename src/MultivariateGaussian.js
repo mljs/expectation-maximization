@@ -5,10 +5,11 @@ var Matrix = require('ml-matrix');
 class MultivariateGaussian {
     constructor(parameters) {
         this.sigma = Matrix.checkMatrix(parameters.sigma);
-        this.mu = Matrix.rowVector(parameters.mu);
+        this.mu = Matrix.checkMatrix(parameters.mu);
         this.k = this.mu.columns;
         try {
-            var det = this.sigma.det();
+            // TODO: try with this.sigma.det()
+            var det = Matrix.DC.LuDecomposition(this.sigma).determinant;
             this.sigmaInv = this.sigma.inverse();
             var sqrt2PI = Math.sqrt(Math.PI * 2);
             this.coeff = 1 / (Math.pow(sqrt2PI, this.k) * Math.sqrt(det));

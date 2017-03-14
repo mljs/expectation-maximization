@@ -13,12 +13,13 @@ class ExpectationMaximization{
     constructor(options) {
         options = Object.assign({}, defaultOptions, options);
         this.epsilon = options.epsilon;
-        this.clusters = options.clusters;
+        this.numClusters = options.clusters;
         this.maxIters = options.maxIterations;
     }
 
     train(features) {
-        var estimations = Matrix.rand(this.clusters, features.rows);
+        features = Matrix.checkMatrix(features);
+        var estimations = Matrix.rand(this.numClusters, features.rows);
         for(var i = 0; i < this.maxIters; ++i) {
             var clusters = this.maximization(features, estimations);
             var oldEstimations = estimations.clone();
@@ -32,13 +33,30 @@ class ExpectationMaximization{
         this.clusters = clusters;
     }
 
+    predict(features) {
+        var predictions = new Array(features.rows);
+        for(var i = 0; i < features.rows; ++i) {
+            var max = 0, maxIndex = 0;
+            for(var j = 0; j < this.clusters.length; ++j) {
+                var currentProb = this.clusters[j].probability(features[i]);
+                if(currentProb > max) {
+                    max = currentProb;
+                    maxIndex = j;
+                }
+            }
+            predictions[i] = maxIndex;
+        }
+
+        return predictions;
+    }
+
     maximization(features, estimations) {
         var len = estimations.rows;
         var dim = estimations.columns;
         var res = new Array(len);
         var sum = estimations.sum();
-        var sumByRow = estimations.sum('row');
-        var featuresT = features.transposeView();
+        var sumByRow = estimations.sum('row').to1DArray();
+        var featuresT = features.transpose();
         for(var g = 0; g < len; g++) {
             var currentEstimation = estimations.getRowVector(g);
             var estimationSum = sumByRow[g];
@@ -53,18 +71,21 @@ class ExpectationMaximization{
             for(var m = 0; m < mu.length; m++) {
                 mu[m] = mu.getRowVector(m).mul(currentEstimation).sum();
             }
+            mu = Matrix.rowVector(mu);
             // Compute the covariance
-            var sigma = new Matrix(1, dim).fill(this.epsilon);
+            var sigma = Matrix.diag(new Matrix(1, dim).fill(this.epsilon)[0]);
             //var sigma = n.diag(n.rep([dim], n.epsilon));
             for (var i = 0; i < len; i++) {
                 var point = features.getRowVector(i);
                 var diff = Matrix.sub(point, mu);
-                var coeff = currentEstimation[i] / estimationSum;
-                for (var a = 0; a < diff.length; a++) {
+                var coeff = currentEstimation[0][i] / estimationSum;
+                for (var a = 0; a < diff.columns; a++) {
                     for (var b = 0; b <= a; b++) {
-                        var tmp = coeff * diff[a] * diff[b];
+                        var tmp = coeff * diff[0][a] * diff[0][b];
                         sigma[a][b] += tmp;
-                        if (b !== a) sigma[b][a] += tmp;
+                        if (b !== a) {
+                            sigma[b][a] += tmp;
+                        }
                     }
                 }
             }
@@ -74,32 +95,32 @@ class ExpectationMaximization{
     }
 
     expectation(features, clusters) {
-        var res = new Matrix(1, features.columns);// new Array(points.length);
+        var res = new Array(features.columns);// new Array(points.length);
 
         for (var p = 0; p < features.rows; p++) {
             var point = features[p];
-            var line = new Array(this.clusters);
+            var line = new Array(this.numClusters);
             var sum = 0;
             // Compute the raw density values
-            for (var g = 0; g < this.clusters; g++) {
+            for (var g = 0; g < this.numClusters; g++) {
                 var prob = clusters[g].probability(point);
                 line[g] = prob;
                 sum += prob;
             }
             // Convert to probabilities by dividing by the sum
             if (sum > 0) {
-                for (g = 0; g < this.clusters; g++) {
+                for (g = 0; g < this.numClusters; g++) {
                     line[g] /= sum;
                 }
             } else {
-                for (g = 0; g < this.clusters; g++) {
-                    line[g] = 1 / this.clusters;
+                for (g = 0; g < this.numClusters; g++) {
+                    line[g] = 1 / this.numClusters;
                 }
             }
             res[p] = line;
         }
 
-        return res.transpose();
+        return new Matrix(res).transpose();
     }
 }
 
