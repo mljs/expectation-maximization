@@ -2,11 +2,13 @@
 
 const Cluster = require('./Cluster');
 const Matrix = require('ml-matrix');
+const MT = require('ml-xsadd');
 
 const defaultOptions = {
     epsilon: 2e-16,
     clusters: 2,
-    maxIterations: 1000
+    maxIterations: 1000,
+    seed: 42
 };
 
 class ExpectationMaximization{
@@ -15,11 +17,12 @@ class ExpectationMaximization{
         this.epsilon = options.epsilon;
         this.numClusters = options.clusters;
         this.maxIters = options.maxIterations;
+        this.seed = options.seed;
     }
 
     train(features) {
         features = Matrix.checkMatrix(features);
-        var estimations = Matrix.rand(this.numClusters, features.rows);
+        var estimations = Matrix.rand(this.numClusters, features.rows, new MT(this.seed).random);
         for(var i = 0; i < this.maxIters; ++i) {
             var clusters = this.maximization(features, estimations);
             var oldEstimations = estimations.clone();
@@ -52,7 +55,7 @@ class ExpectationMaximization{
 
     maximization(features, estimations) {
         var len = estimations.rows;
-        var dim = estimations.columns;
+        var dim = features.columns;
         var res = new Array(len);
         var sum = estimations.sum();
         var sumByRow = estimations.sum('row').to1DArray();
@@ -71,11 +74,12 @@ class ExpectationMaximization{
             for(var m = 0; m < mu.length; m++) {
                 mu[m] = mu.getRowVector(m).mul(currentEstimation).sum();
             }
+            //mu = mu.sum('row').transpose();
             mu = Matrix.rowVector(mu);
             // Compute the covariance
             var sigma = Matrix.diag(new Matrix(1, dim).fill(this.epsilon)[0]);
             //var sigma = n.diag(n.rep([dim], n.epsilon));
-            for (var i = 0; i < len; i++) {
+            for (var i = 0; i < features.rows; i++) {
                 var point = features.getRowVector(i);
                 var diff = Matrix.sub(point, mu);
                 var coeff = currentEstimation[0][i] / estimationSum;
@@ -95,7 +99,7 @@ class ExpectationMaximization{
     }
 
     expectation(features, clusters) {
-        var res = new Array(features.columns);// new Array(points.length);
+        var res = new Array(features.rows);// new Array(points.length);
 
         for (var p = 0; p < features.rows; p++) {
             var point = features[p];
