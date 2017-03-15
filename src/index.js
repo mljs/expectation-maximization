@@ -99,7 +99,7 @@ class ExpectationMaximization {
             clusterData[i] = {
                 weight: this.clusters[i].weight,
                 mean: this.clusters[i].gaussian.mu,
-                covariance: this.clusters[i].gaussian.sigma
+                covariance: this.clusters[i].gaussian.sigma,
                 prediction: i
             }
         }

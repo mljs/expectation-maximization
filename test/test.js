@@ -44,13 +44,10 @@ describe('ml-expectation-maximization test', function () {
         }
 
         var em = new ExpectationMaximization({
+            numClusters: groups.length,
             seed: 42
         });
         em.train(points);
-
-        em.clusters.sort(function (a, b) {
-            return a.weight - b.weight;
-        });
 
         return {
             model: em,
@@ -62,10 +59,22 @@ describe('ml-expectation-maximization test', function () {
         var result = getModel();
         var em = result.model, groups = result.groups;
 
-        em.clusters[0].weight.should.be.approximately(groups[0].weight, 0.1);
-        em.clusters[1].weight.should.be.approximately(groups[1].weight, 0.1);
-        Matrix.sub(em.clusters[0].gaussian.mu, groups[0].mu).abs().sum().should.be.approximately(0, 0.3);
-        Matrix.sub(em.clusters[1].gaussian.mu, groups[1].mu).abs().sum().should.be.approximately(0, 0.3);
+        var clusterData = em.getClusterData();
+
+        clusterData.sort(function (a, b) {
+            return a.weight - b.weight;
+        });
+
+        for(var i = 0; i < groups.length; ++i) {
+            clusterData[i].weight.should.be.approximately(groups[i].weight, 0.1);
+            Matrix.sub(clusterData[i].mean, groups[i].mu).abs().sum().should.be.approximately(0, 0.3);
+            clusterData[i].should.have.properties(['mean', 'covariance', 'prediction', 'weight']);
+        }
+
+        // this is made because initialization of the clusters
+        em.clusters.sort(function (a, b) {
+            return a.weight - b.weight;
+        });
 
         var predictions = em.predict([[4, 4], [0, 0]]);
 
@@ -75,6 +84,11 @@ describe('ml-expectation-maximization test', function () {
 
     it('save and load', function () {
         var em = getModel().model;
+
+        // this is made because initialization of the clusters
+        em.clusters.sort(function (a, b) {
+            return a.weight - b.weight;
+        });
 
         var newModel = ExpectationMaximization.load(JSON.parse(JSON.stringify(em)));
 
