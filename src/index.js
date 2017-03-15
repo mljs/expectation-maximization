@@ -44,9 +44,10 @@ class ExpectationMaximization {
      */
     train(features) {
         features = Matrix.checkMatrix(features);
+        var featuresT = features.transpose();
         var estimations = Matrix.rand(this.numClusters, features.rows, new MT(this.seed).random);
         for (var i = 0; i < this.maxIterations; ++i) {
-            var clusters = this.maximization(features, estimations);
+            var clusters = this.maximization(features, featuresT, estimations);
             var oldEstimations = estimations.clone();
             estimations = this.expectation(features, clusters);
             var delta = Matrix.sub(estimations, oldEstimations).abs().max();
@@ -115,22 +116,23 @@ class ExpectationMaximization {
      * Maximization step of the algorithm
      *
      * @param {Matrix} features : training set
+     * @param {Matrix} featuresT : training set transposed
      * @param {Matrix} estimations : estimations of the expectation step or initial random guess.
      * @return {Array} : Array of gaussian multivariate clusters.
      */
-    maximization(features, estimations) {
+    maximization(features, featuresT, estimations) {
         var len = estimations.rows;
         var dim = features.columns;
         var res = new Array(len);
         var sum = estimations.sum();
-        var sumByRow = estimations.sum('row').to1DArray();
-        var featuresT = features.transpose();
+        var sumByRow = estimations.sum('row');
+        // var featuresT = features.transpose();
         for (var g = 0; g < len; g++) {
             var currentEstimation = estimations.getRowVector(g);
-            var estimationSum = sumByRow[g];
+            var estimationSum = sumByRow[g][0];
             if (estimationSum < this.epsilon) {
                 currentEstimation.fill(this.epsilon);
-                estimationSum = currentEstimation.length * this.epsilon;
+                estimationSum = currentEstimation.columns * this.epsilon;
             }
             // Compute weight
             var weight = estimationSum / sum;
