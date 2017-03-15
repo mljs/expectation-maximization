@@ -5,7 +5,8 @@
   [![David deps][david-image]][david-url]
   [![npm download][download-image]][download-url]
 
-Expectation Maximization algorithm
+Gaussian Mixture Models using Expectation Maximization algorithm transcribed from Expectation Maximization [repository](https://github.com/lovasoa/expectation-maximization)
+of Ophir LOJKINE, also using his multivariate gaussian [link](https://github.com/lovasoa/multivariate-gaussian).
 
 ## Installation
 
