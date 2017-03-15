@@ -6,29 +6,51 @@ const MT = require('ml-xsadd');
 
 const defaultOptions = {
     epsilon: 2e-16,
-    clusters: 2,
+    numClusters: 2,
     maxIterations: 1000,
-    seed: 42
+    seed: undefined
 };
 
-class ExpectationMaximization{
+/**
+ * @class ExpectationMaximization
+ */
+class ExpectationMaximization {
+
+    /**
+     * Constructor for Expectation Maximization
+     * @param options
+     * @param {number} [options.epsilon=2e-16] : Convergence threshold for final solution.
+     * @param {number} [options.numClusters=2] : Number of clusters to find.
+     * @param {number} [options.maxIterations=1000] : Maximum number of iterations of the algorithm.
+     * @param {number} [options.seed=undefined] : Seed for the random generator
+     */
     constructor(options) {
         options = Object.assign({}, defaultOptions, options);
         this.epsilon = options.epsilon;
-        this.numClusters = options.clusters;
-        this.maxIters = options.maxIterations;
+        this.numClusters = options.numClusters;
+        this.maxIterations = options.maxIterations;
         this.seed = options.seed;
+        if (options.model === 'em-gmm') {
+            this.clusters = new Array(this.numClusters);
+            for (var i = 0; i < this.numClusters; ++i) {
+                this.clusters[i] = Cluster.load(options.clusters[i]);
+            }
+        }
     }
 
+    /**
+     * Train the current model with the given cases
+     * @param {Matrix|Array} features
+     */
     train(features) {
         features = Matrix.checkMatrix(features);
         var estimations = Matrix.rand(this.numClusters, features.rows, new MT(this.seed).random);
-        for(var i = 0; i < this.maxIters; ++i) {
+        for (var i = 0; i < this.maxIterations; ++i) {
             var clusters = this.maximization(features, estimations);
             var oldEstimations = estimations.clone();
             estimations = this.expectation(features, clusters);
             var delta = Matrix.sub(estimations, oldEstimations).abs().max();
-            if(delta <= this.epsilon) {
+            if (delta <= this.epsilon) {
                 break;
             }
         }
@@ -36,13 +58,19 @@ class ExpectationMaximization{
         this.clusters = clusters;
     }
 
+    /**
+     * Predict the output of each element of the matrix
+     * @param {Matrix|array} features
+     * @returns {array} : predictions
+     */
     predict(features) {
+        features = Matrix.checkMatrix(features);
         var predictions = new Array(features.rows);
-        for(var i = 0; i < features.rows; ++i) {
+        for (var i = 0; i < features.rows; ++i) {
             var max = 0, maxIndex = 0;
-            for(var j = 0; j < this.clusters.length; ++j) {
+            for (var j = 0; j < this.clusters.length; ++j) {
                 var currentProb = this.clusters[j].probability(features[i]);
-                if(currentProb > max) {
+                if (currentProb > max) {
                     max = currentProb;
                     maxIndex = j;
                 }
@@ -53,6 +81,43 @@ class ExpectationMaximization{
         return predictions;
     }
 
+    /**
+     * Save the current model to JSON format
+     * @returns {{model: string, clusters: (Array|*), epsilon: *, numClusters: *, maxIterations: *, seed: *}}
+     */
+    toJSON() {
+        return {
+            model: 'em-gmm',
+            clusters: this.clusters,
+            epsilon: this.epsilon,
+            numClusters: this.numClusters,
+            maxIterations: this.maxIterations,
+            seed: this.seed
+        };
+    }
+
+    /**
+     * Load a Expectation-Maximization with the given model.
+     * @param {object} model
+     * @returns {ExpectationMaximization}
+     */
+    static load(model) {
+        if (model.model !== 'em-gmm') {
+            throw new RangeError('the current model is invalid!');
+        }
+
+        return new ExpectationMaximization(model);
+    }
+
+    /**
+     * @private
+     *
+     * Maximization step of the algorithm
+     *
+     * @param {Matrix} features : training set
+     * @param {Matrix} estimations : estimations of the expectation step or initial random guess.
+     * @returns {Array} : Array of gaussian multivariate clusters.
+     */
     maximization(features, estimations) {
         var len = estimations.rows;
         var dim = features.columns;
@@ -60,25 +125,24 @@ class ExpectationMaximization{
         var sum = estimations.sum();
         var sumByRow = estimations.sum('row').to1DArray();
         var featuresT = features.transpose();
-        for(var g = 0; g < len; g++) {
+        for (var g = 0; g < len; g++) {
             var currentEstimation = estimations.getRowVector(g);
             var estimationSum = sumByRow[g];
             if (estimationSum < this.epsilon) {
                 currentEstimation.fill(this.epsilon);
                 estimationSum = currentEstimation.length * this.epsilon;
             }
-            // Compute the weight
+            // Compute weight
             var weight = estimationSum / sum;
-            // Compute the mean
+            // Compute mean
             var mu = Matrix.div(featuresT, estimationSum);
-            for(var m = 0; m < mu.length; m++) {
+            for (var m = 0; m < mu.length; m++) {
                 mu[m] = mu.getRowVector(m).mul(currentEstimation).sum();
             }
-            //mu = mu.sum('row').transpose();
+
             mu = Matrix.rowVector(mu);
             // Compute the covariance
             var sigma = Matrix.diag(new Matrix(1, dim).fill(this.epsilon)[0]);
-            //var sigma = n.diag(n.rep([dim], n.epsilon));
             for (var i = 0; i < features.rows; i++) {
                 var point = features.getRowVector(i);
                 var diff = Matrix.sub(point, mu);
@@ -93,13 +157,26 @@ class ExpectationMaximization{
                     }
                 }
             }
-            res[g] = new Cluster(weight, mu, sigma);
+            res[g] = new Cluster({
+                weight: weight,
+                mu: mu,
+                sigma: sigma
+            });
         }
         return res;
     }
 
+    /**
+     * @private
+     *
+     * Expectation step of the algorithm.
+     *
+     * @param {Matrix} features : Training set.
+     * @param {Array} clusters : Array of multivariate gaussian clusters.
+     * @returns {Matrix} : New estimations with the given clusters.
+     */
     expectation(features, clusters) {
-        var res = new Array(features.rows);// new Array(points.length);
+        var res = new Array(features.rows);
 
         for (var p = 0; p < features.rows; p++) {
             var point = features[p];
@@ -111,7 +188,7 @@ class ExpectationMaximization{
                 line[g] = prob;
                 sum += prob;
             }
-            // Convert to probabilities by dividing by the sum
+
             if (sum > 0) {
                 for (g = 0; g < this.numClusters; g++) {
                     line[g] /= sum;

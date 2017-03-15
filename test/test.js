@@ -8,19 +8,19 @@ describe('ml-expectation-maximization test', function () {
 
     it('basic test', function () {
         var points = [
-            [    241,    253  ],
-            [    1240,    214  ],
+            [241, 253],
+            [1240, 214],
         ];
-        var groups = new ExpectationMaximization();
-        groups.train(points);
+        var em = new ExpectationMaximization({
+            seed: 42
+        });
+        em.train(points);
 
-        groups.clusters[0].weight.should.be.approximately(.5, 1e-3);
-        groups.clusters[1].weight.should.be.approximately(.5, 1e-3);
+        em.clusters[0].weight.should.be.approximately(.5, 1e-3);
+        em.clusters[1].weight.should.be.approximately(.5, 1e-3);
     });
-    
-    it('Example with 500 points', function () {
-        var size = 500;
 
+    function getModel(size = 500) {
         var points = [];
         var groups = [{
             weight: .3,
@@ -32,14 +32,8 @@ describe('ml-expectation-maximization test', function () {
 
 
         var sub = Matrix.rowVector([.5, .5]);
-        var counter0 = 0, counter1 = 0;
         for (var i = 0; i < size; i++) {
             var group = Math.random() < groups[0].weight ? 0 : 1;
-            if(group === 0) {
-                counter0++;
-            } else {
-                counter1++;
-            }
             var mu = groups[group].mu;
             var r = mu.clone();
             var N = 10;
@@ -49,26 +43,48 @@ describe('ml-expectation-maximization test', function () {
             points.push(r[0]);
         }
 
-        var em = new ExpectationMaximization();
+        var em = new ExpectationMaximization({
+            seed: 42
+        });
         em.train(points);
 
         em.clusters.sort(function (a, b) {
             return a.weight - b.weight;
         });
 
+        return {
+            model: em,
+            groups: groups
+        };
+    }
+
+    it('Example with 500 points', function () {
+        var result = getModel();
+        var em = result.model, groups = result.groups;
+
         em.clusters[0].weight.should.be.approximately(groups[0].weight, 0.1);
         em.clusters[1].weight.should.be.approximately(groups[1].weight, 0.1);
         Matrix.sub(em.clusters[0].gaussian.mu, groups[0].mu).abs().sum().should.be.approximately(0, 0.3);
         Matrix.sub(em.clusters[1].gaussian.mu, groups[1].mu).abs().sum().should.be.approximately(0, 0.3);
-        /*assert.ok(isNear(result[0].weight, groups[0].weight));
-        assert.ok(isNear(result[0].mu, groups[0].mu));
-        assert.ok(isNear(result[1].weight, groups[1].weight));
-        assert.ok(isNear(result[1].mu, groups[1].mu));
-        assert.end();*/
-    })
+
+        var predictions = em.predict([[4, 4], [0, 0]]);
+
+        predictions[0].should.be.equal(0);
+        predictions[1].should.be.equal(1);
+    });
+
+    it('save and load', function () {
+        var em = getModel().model;
+
+        var newModel = ExpectationMaximization.load(JSON.parse(JSON.stringify(em)));
+
+        var predictions = newModel.predict([[4, 4], [0, 0]]);
+        predictions[0].should.be.equal(0);
+        predictions[1].should.be.equal(1);
+    });
 });
 
-describe("Multivariate Gaussian Test", function () {
+describe('Multivariate Gaussian Test', function () {
     it('basic test', function () {
         var params = {
             sigma: [
@@ -80,20 +96,20 @@ describe("Multivariate Gaussian Test", function () {
                 [0.73516845, 0.27666293, 0.65376305]
             ]
         };
-        var x = [0.7,  0.2,  0.6];
+        var x = [0.7, 0.2, 0.6];
         var gaussian = new MG(params);
         var prob = gaussian.probability(x);
 
         prob.should.be.approximately(0.010375829337330682, 1e-3);
     });
 
-    it('handles singular matrices', function() {
+    it('handles singular matrices', function () {
         var params = {
-            sigma : [
+            sigma: [
                 [1, 1],
                 [1, 1]
             ],
-            mu : [
+            mu: [
                 [0, 0]
             ]
         };
@@ -103,7 +119,7 @@ describe("Multivariate Gaussian Test", function () {
         res.should.be.approximately(0, 1e-3);
     });
 
-    it('works when sigma^-1 is large', function() {
+    it('works when sigma^-1 is large', function () {
         // Test when sigma^-1 is very large
         var params = {
             sigma: [
