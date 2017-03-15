@@ -83,6 +83,31 @@ class ExpectationMaximization {
     }
 
     /**
+     * Returns an array of objects containing all the information related to each cluster (Note: this method is only valid after running the train method).
+     * Each element of the array contains
+     *
+     *  * weight: Weight of the current cluster.
+     *  * mean: Current mean of the cluster.
+     *  * covariance: Covariance matrix of the cluster.
+     *  * prediction: prediction label associated with the cluster.
+     *
+     * @return {Array}
+     */
+    getClusterData() {
+        var clusterData = new Array(this.numClusters);
+        for(var i = 0; i < this.numClusters; ++i) {
+            clusterData[i] = {
+                weight: this.clusters[i].weight,
+                mean: this.clusters[i].gaussian.mu,
+                covariance: this.clusters[i].gaussian.sigma
+                prediction: i
+            }
+        }
+
+        return clusterData;
+    }
+
+    /**
      * Save the current model to JSON format
      * @return {object} model
      */
