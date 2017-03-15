@@ -9,7 +9,7 @@ class MultivariateGaussian {
         this.k = this.mu.columns;
         try {
             // TODO: try with this.sigma.det()
-            var det = Matrix.DC.LuDecomposition(this.sigma).determinant;
+            var det = this.sigma.det();//Matrix.DC.LuDecomposition(this.sigma).determinant;
             this.sigmaInv = this.sigma.inverse();
             var sqrt2PI = Math.sqrt(Math.PI * 2);
             this.coeff = 1 / (Math.pow(sqrt2PI, this.k) * Math.sqrt(det));

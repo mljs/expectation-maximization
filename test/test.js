@@ -8,8 +8,8 @@ describe('ml-expectation-maximization test', function () {
 
     it('basic test', function () {
         var points = [
-            [241, 253],
-            [1240, 214]
+            [    241,    253  ],
+            [    1240,    214  ],
         ];
         var groups = new ExpectationMaximization();
         groups.train(points);
@@ -18,25 +18,53 @@ describe('ml-expectation-maximization test', function () {
         groups.clusters[1].weight.should.be.approximately(.5, 1e-3);
     });
     
-    it.only('Example with 100 points', function () {
-        var size = 100;
+    it('Example with 500 points', function () {
+        var size = 500;
 
-        var data = Matrix.rand(size, 2).mul(10).sub(0.5);
-        var rand = Matrix.rand(1, size);
+        var points = [];
         var groups = [{
             weight: .3,
-            mu: [5, 5]
+            mu: Matrix.rowVector([5, 5])
         }, {
             weight: .7,
-            mu: [0, 1]
+            mu: Matrix.rowVector([0, 1])
         }];
 
-        data.apply(function (i, j) {
-            this[i][j] += rand[0][i] < .3 ? groups[0].mu[j] : groups[1].mu[j];
+
+        var sub = Matrix.rowVector([.5, .5]);
+        var counter0 = 0, counter1 = 0;
+        for (var i = 0; i < size; i++) {
+            var group = Math.random() < groups[0].weight ? 0 : 1;
+            if(group === 0) {
+                counter0++;
+            } else {
+                counter1++;
+            }
+            var mu = groups[group].mu;
+            var r = mu.clone();
+            var N = 10;
+            for (var k = 0; k < N; k++) {
+                r.add(Matrix.rand(1, 2).sub(sub));
+            }
+            points.push(r[0]);
+        }
+
+        var em = new ExpectationMaximization();
+        em.train(points);
+
+        em.clusters.sort(function (a, b) {
+            return a.weight - b.weight;
         });
 
-        var EM = new ExpectationMaximization();
-        EM.train(data);
+        em.clusters[0].weight.should.be.approximately(groups[0].weight, 0.1);
+        em.clusters[1].weight.should.be.approximately(groups[1].weight, 0.1);
+        Matrix.sub(em.clusters[0].gaussian.mu, groups[0].mu).abs().sum().should.be.approximately(0, 0.3);
+        Matrix.sub(em.clusters[1].gaussian.mu, groups[1].mu).abs().sum().should.be.approximately(0, 0.3);
+        /*assert.ok(isNear(result[0].weight, groups[0].weight));
+        assert.ok(isNear(result[0].mu, groups[0].mu));
+        assert.ok(isNear(result[1].weight, groups[1].weight));
+        assert.ok(isNear(result[1].mu, groups[1].mu));
+        assert.end();*/
     })
 });
 
