@@ -4,12 +4,15 @@
   "description": "Expectation Maximization algorithm",
   "main": "./src/index.js",
   "files": [
+    "runkit.js",
     "src"
   ],
   "scripts": {
     "eslint": "eslint src test",
     "eslint-fix": "npm run eslint -- --fix",
     "test": "npm run test-mocha && npm run eslint",
+    "test-cov": "istanbul cover node_modules/.bin/_mocha -- --require should --reporter dot --recursive",
+    "test-travis": "istanbul cover node_modules/.bin/_mocha --report lcovonly -- --require should --reporter dot --recursive",
     "test-mocha": "mocha --require should --reporter mocha-better-spec-reporter"
   },
   "repository": {
@@ -21,18 +24,22 @@
     "learning",
     "data",
     "mining",
-    "datamining"
+    "datamining",
+    "clustering",
+    "gaussian"
   ],
   "author": "Jefferson Hernandez <jeffersonh44@gmail.com> (https://github.com/Jefferson Hernandez)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/mljs/expectation-maximization/issues"
   },
+  "runkitExampleFilename": "./runkit.js",
   "homepage": "https://github.com/mljs/expectation-maximization#readme",
   "devDependencies": {
     "eslint": "^3.12.2",
     "eslint-config-cheminfo": "^1.6.0",
     "eslint-plugin-no-only-tests": "^1.1.0",
+    "istanbul": "^0.4.5",
     "mocha": "^3.2.0",
     "mocha-better-spec-reporter": "^3.1.0",
     "should": "^11.1.2"
