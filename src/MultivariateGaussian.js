@@ -11,7 +11,7 @@ class MultivariateGaussian {
      * @param {object} parameters
      * @param {Matrix|Array} [parameters.mu] : Mean Matrix
      * @param {Matrix|Array} [parameters.sigma] : Covariance Matrix
-     * @param load
+     * @param {boolean} load
      */
     constructor(parameters, load) {
         if (load) {
@@ -45,7 +45,7 @@ class MultivariateGaussian {
      * Calculates the probability density function(also knows as pdf) at the given point.
      *
      * @param {Array} point
-     * @returns {number}
+     * @return {number}
      */
     probability(point) {
         var delta = Matrix.rowVector(point).sub(this.mu);
@@ -69,7 +69,7 @@ class MultivariateGaussian {
      *
      * Save the current MultivariateGaussian model.
      *
-     * @returns {object} : JSON object.
+     * @return {object} : JSON object.
      */
     toJSON() {
         return {
@@ -87,8 +87,8 @@ class MultivariateGaussian {
      *
      * Load a new MultivariateGaussian with the given model.
      *
-     * @param model
-     * @returns {MultivariateGaussian}
+     * @param {object} model
+     * @return {MultivariateGaussian}
      */
     static load(model) {
         return new MultivariateGaussian(model, true);

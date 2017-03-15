@@ -18,7 +18,7 @@ class ExpectationMaximization {
 
     /**
      * Constructor for Expectation Maximization
-     * @param options
+     * @param {object} options
      * @param {number} [options.epsilon=2e-16] : Convergence threshold for final solution.
      * @param {number} [options.numClusters=2] : Number of clusters to find.
      * @param {number} [options.maxIterations=1000] : Maximum number of iterations of the algorithm.
@@ -60,8 +60,8 @@ class ExpectationMaximization {
 
     /**
      * Predict the output of each element of the matrix
-     * @param {Matrix|array} features
-     * @returns {array} : predictions
+     * @param {Matrix|Array} features
+     * @return {Array} : predictions
      */
     predict(features) {
         features = Matrix.checkMatrix(features);
@@ -83,7 +83,7 @@ class ExpectationMaximization {
 
     /**
      * Save the current model to JSON format
-     * @returns {{model: string, clusters: (Array|*), epsilon: *, numClusters: *, maxIterations: *, seed: *}}
+     * @return {object} model
      */
     toJSON() {
         return {
@@ -99,7 +99,7 @@ class ExpectationMaximization {
     /**
      * Load a Expectation-Maximization with the given model.
      * @param {object} model
-     * @returns {ExpectationMaximization}
+     * @return {ExpectationMaximization}
      */
     static load(model) {
         if (model.model !== 'em-gmm') {
@@ -116,7 +116,7 @@ class ExpectationMaximization {
      *
      * @param {Matrix} features : training set
      * @param {Matrix} estimations : estimations of the expectation step or initial random guess.
-     * @returns {Array} : Array of gaussian multivariate clusters.
+     * @return {Array} : Array of gaussian multivariate clusters.
      */
     maximization(features, estimations) {
         var len = estimations.rows;
@@ -173,7 +173,7 @@ class ExpectationMaximization {
      *
      * @param {Matrix} features : Training set.
      * @param {Array} clusters : Array of multivariate gaussian clusters.
-     * @returns {Matrix} : New estimations with the given clusters.
+     * @return {Matrix} : New estimations with the given clusters.
      */
     expectation(features, clusters) {
         var res = new Array(features.rows);
