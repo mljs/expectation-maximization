@@ -32,7 +32,7 @@ class Cluster {
      * @private
      * Calculates the probability of a given point of belonging to the cluster
      * @param {Array} point
-     * @returns {number} : probability
+     * @return {number} : probability
      */
     probability(point) {
         return this.weight * this.gaussian.probability(point);
@@ -41,7 +41,7 @@ class Cluster {
     /**
      * @private
      * Save the current cluster model.
-     * @returns {{weight: *, gaussian: (MultivariateGaussian|*|Gaussian)}}
+     * @return {{weight: *, gaussian: (MultivariateGaussian|*|Gaussian)}}
      */
     toJSON() {
         return {
@@ -54,7 +54,7 @@ class Cluster {
      * @private
      * Load a new cluster with the given model.
      * @param {object} model
-     * @returns {Cluster}
+     * @return {Cluster}
      */
     static load(model) {
         return new Cluster(model, true);
