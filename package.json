@@ -1,5 +1,5 @@
 {
-  "name": "ml-ml-expectation-maximization",
+  "name": "ml-expectation-maximization",
   "version": "0.0.1",
   "description": "Expectation Maximization algorithm",
   "main": "./src/index.js",
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mljs/ml-expectation-maximization.git"
+    "url": "https://github.com/mljs/expectation-maximization.git"
   },
   "keywords": [
     "machine",
@@ -26,9 +26,9 @@
   "author": "Jefferson Hernandez <jeffersonh44@gmail.com> (https://github.com/Jefferson Hernandez)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mljs/ml-expectation-maximization/issues"
+    "url": "https://github.com/mljs/expectation-maximization/issues"
   },
-  "homepage": "https://github.com/mljs/ml-expectation-maximization#readme",
+  "homepage": "https://github.com/mljs/expectation-maximization#readme",
   "devDependencies": {
     "eslint": "^3.12.2",
     "eslint-config-cheminfo": "^1.6.0",
