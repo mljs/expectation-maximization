@@ -2,18 +2,19 @@
   "name": "ml-expectation-maximization",
   "version": "0.0.1",
   "description": "Expectation Maximization algorithm",
-  "main": "./src/index.js",
+  "main": "lib/index.js",
+  "module": "src/index.js",
   "files": [
-    "runkit.js",
+    "lib",
     "src"
   ],
   "scripts": {
-    "eslint": "eslint src test",
+    "eslint": "eslint src",
     "eslint-fix": "npm run eslint -- --fix",
-    "test": "npm run test-mocha && npm run eslint",
-    "test-cov": "istanbul cover node_modules/.bin/_mocha -- --require should --reporter dot --recursive",
-    "test-travis": "istanbul cover node_modules/.bin/_mocha --report lcovonly -- --require should --reporter dot --recursive",
-    "test-mocha": "mocha --require should --reporter mocha-better-spec-reporter"
+    "prepublish": "rollup -c",
+    "test": "run-s testonly eslint",
+    "testonly": "jest",
+    "coverage": "jest --coverage"
   },
   "repository": {
     "type": "git",
@@ -26,27 +27,27 @@
     "mining",
     "datamining",
     "clustering",
-    "gaussian"
+    "gaussian",
+    "expectation",
+    "maximization"
   ],
   "author": "Jefferson Hernandez <jeffersonh44@gmail.com> (https://github.com/Jefferson Hernandez)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/mljs/expectation-maximization/issues"
   },
-  "runkitExampleFilename": "./runkit.js",
   "homepage": "https://github.com/mljs/expectation-maximization#readme",
   "devDependencies": {
-    "eslint": "^3.12.2",
-    "eslint-config-cheminfo": "^1.6.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
+    "eslint": "^3.1.0",
+    "eslint-config-cheminfo": "^1.0.0",
     "eslint-plugin-no-only-tests": "^1.1.0",
-    "istanbul": "^0.4.5",
-    "mocha": "^3.2.0",
-    "mocha-better-spec-reporter": "^3.1.0",
-    "should": "^11.1.2"
+    "jest": "^20.0.4",
+    "npm-run-all": "^4.1.0",
+    "rollup": "^0.43.0"
   },
   "dependencies": {
     "expectation-maximization": "^1.5.0",
-    "ml-matrix": "^5.0.1",
-    "ml-xsadd": "^1.0.0"
+    "ml-matrix": "^5.0.1"
   }
 }

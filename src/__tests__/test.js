@@ -1,10 +1,8 @@
-'use strict';
+import {ExpectationMaximization} from '..';
+import {MultivariateGaussian as MG} from '../MultivariateGaussian';
+import Matrix from 'ml-matrix';
 
-const ExpectationMaximization = require('..');
-const MG = require('../src/MultivariateGaussian');
-const Matrix = require('ml-matrix').Matrix;
-
-describe('ml-expectation-maximization test', function () {
+describe('expectation-maximization test', () => {
 
     function getModel(size = 500) {
         var points = [];
@@ -41,9 +39,10 @@ describe('ml-expectation-maximization test', function () {
         };
     }
 
-    it('Example with 500 points', function () {
+    test('Example with 500 points', function () {
         var result = getModel();
-        var em = result.model, groups = result.groups;
+        var em = result.model;
+        var groups = result.groups;
 
         var clusterData = em.getClusterData();
 
@@ -51,10 +50,13 @@ describe('ml-expectation-maximization test', function () {
             return a.weight - b.weight;
         });
 
-        for(var i = 0; i < groups.length; ++i) {
-            clusterData[i].weight.should.be.approximately(groups[i].weight, 0.1);
-            Matrix.sub(clusterData[i].mean, groups[i].mu).abs().sum().should.be.approximately(0, 0.3);
-            clusterData[i].should.have.properties(['mean', 'covariance', 'prediction', 'weight']);
+        for (var i = 0; i < groups.length; ++i) {
+            expect(clusterData[i].weight).toBeCloseTo(groups[i].weight, 1);
+            expect(Matrix.sub(clusterData[i].mean, groups[i].mu).abs().sum()).toBeCloseTo(0, 0);
+            expect(clusterData[i]).toHaveProperty('mean');
+            expect(clusterData[i]).toHaveProperty('covariance');
+            expect(clusterData[i]).toHaveProperty('prediction');
+            expect(clusterData[i]).toHaveProperty('weight');
         }
 
         // this is made because initialization of the clusters
@@ -64,11 +66,11 @@ describe('ml-expectation-maximization test', function () {
 
         var predictions = em.predict([[4, 4], [0, 0]]);
 
-        predictions[0].should.be.equal(0);
-        predictions[1].should.be.equal(1);
+        expect(predictions[0]).toBe(0);
+        expect(predictions[1]).toBe(1);
     });
 
-    it('save and load', function () {
+    test('save and load', () => {
         var em = getModel().model;
 
         // this is made because initialization of the clusters
@@ -79,11 +81,11 @@ describe('ml-expectation-maximization test', function () {
         var newModel = ExpectationMaximization.load(JSON.parse(JSON.stringify(em)));
 
         var predictions = newModel.predict([[4, 4], [0, 0]]);
-        predictions[0].should.be.equal(0);
-        predictions[1].should.be.equal(1);
+        expect(predictions[0]).toBe(0);
+        expect(predictions[1]).toBe(1);
     });
 
-    it('case with singular matrix', function () {
+    test('case with singular matrix', function () {
         var points = [
             [241, 253],
             [1240, 214],
@@ -93,13 +95,13 @@ describe('ml-expectation-maximization test', function () {
         });
         em.train(points);
 
-        em.clusters[0].weight.should.be.approximately(.5, 1e-3);
-        em.clusters[1].weight.should.be.approximately(.5, 1e-3);
+        expect(em.clusters[0].weight).toBeCloseTo(.5, 2);
+        expect(em.clusters[1].weight).toBeCloseTo(.5, 2);
     });
 });
 
-describe('Multivariate Gaussian Test', function () {
-    it('basic test', function () {
+describe('Multivariate Gaussian Test', () => {
+    test('basic test', () => {
         var params = {
             sigma: [
                 [3.10853404, 0.57142415, 0.03101091],
@@ -114,10 +116,10 @@ describe('Multivariate Gaussian Test', function () {
         var gaussian = new MG(params);
         var prob = gaussian.probability(x);
 
-        prob.should.be.approximately(0.010375829337330682, 1e-3);
+        expect(prob).toBeCloseTo(0.010375829337330682, 2);
     });
 
-    it('handles singular matrices', function () {
+    test('handles singular matrices', () => {
         var params = {
             sigma: [
                 [1, 1],
@@ -130,10 +132,10 @@ describe('Multivariate Gaussian Test', function () {
 
         var gaussian = new MG(params);
         var res = gaussian.probability([0, 0]);
-        res.should.be.approximately(0, 1e-3);
+        expect(res).toBeCloseTo(0, 2);
     });
 
-    it('works when sigma^-1 is large', function () {
+    test('works when sigma^-1 is large', () => {
         // Test when sigma^-1 is very large
         var params = {
             sigma: [
@@ -147,6 +149,6 @@ describe('Multivariate Gaussian Test', function () {
 
         var gaussian = new MG(params);
         var res = gaussian.probability([0, 0]);
-        res.should.be.approximately(0, 1e-3);
+        expect(res).toBeCloseTo(0, 2);
     });
 });

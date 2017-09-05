@@ -1,8 +1,6 @@
-'use strict';
+import {MultivariateGaussian as Gaussian} from './MultivariateGaussian';
 
-var Gaussian = require('./MultivariateGaussian');
-
-class Cluster {
+export class Cluster {
 
     /**
      * @private
@@ -60,5 +58,3 @@ class Cluster {
         return new Cluster(model, true);
     }
 }
-
-module.exports = Cluster;
