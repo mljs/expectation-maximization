@@ -12,14 +12,23 @@ of Ophir LOJKINE, also using his multivariate gaussian [link](https://github.com
 
 `$ npm install ml-expectation-maximization`
 
-## [API Documentation](https://mljs.github.io/expectation-maximization/)
-
 ## Example
 
 ```js
 const EM = require('ml-expectation-maximization');
 em.train(data); // data is a Training matrix
 em.predict(toPredict); // data matrix to predict
+
+/*
+Get information about clusters obtained on the training step.
+Each element of the array is a cluster with the following information
+
+* weight: Weight of the current cluster.
+* mean: Current mean of the cluster.
+* covariance: Covariance matrix of the cluster.
+* prediction: prediction label associated with the cluster.
+*/
+var data = em.getClusterData();
 
 // save your model
 var model = em.toJSON();
@@ -28,7 +37,7 @@ var model = em.toJSON();
 var newEM = EM.load(model);
 ```
 
-Or test it in [Runkit](https://runkit.com/npm/ml-expectation-maximization)
+## [API Documentation](https://mljs.github.io/expectation-maximization/)
 
 ## License
 
