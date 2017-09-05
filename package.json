@@ -45,7 +45,8 @@
     "should": "^11.1.2"
   },
   "dependencies": {
-    "ml-matrix": "^2.3.0",
+    "expectation-maximization": "^1.5.0",
+    "ml-matrix": "^5.0.1",
     "ml-xsadd": "^1.0.0"
   }
 }

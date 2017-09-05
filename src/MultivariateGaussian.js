@@ -1,6 +1,7 @@
 'use strict';
 
-const Matrix = require('ml-matrix');
+const Matrix = require('ml-matrix').Matrix;
+const inverse = require('ml-matrix').inverse;
 
 class MultivariateGaussian {
     /**
@@ -9,8 +10,8 @@ class MultivariateGaussian {
      * Constructor of the multivariate gaussian distribution
      *
      * @param {object} parameters
-     * @param {Matrix|Array} [parameters.mu] : Mean Matrix
-     * @param {Matrix|Array} [parameters.sigma] : Covariance Matrix
+     * @param {Matrix|Array} [parameters.mu] - Mean Matrix
+     * @param {Matrix|Array} [parameters.sigma] - Covariance Matrix
      * @param {boolean} load
      */
     constructor(parameters, load) {
@@ -26,11 +27,11 @@ class MultivariateGaussian {
             this.k = this.mu.columns;
             try {
                 var det = this.sigma.det();
-                this.sigmaInv = this.sigma.inverse();
+                this.sigmaInv = inverse(this.sigma);
                 var sqrt2PI = Math.sqrt(Math.PI * 2);
                 this.coeff = 1 / (Math.pow(sqrt2PI, this.k) * Math.sqrt(det));
                 if (!(isFinite(det) && det > 0 && isFinite(this.sigmaInv[0][0]))) {
-                    throw new Error();
+                    throw new Error('Infinte determinant for Multivariate gaussian');
                 }
             } catch (e) {
                 this.sigmaInv = Matrix.zeros(this.k, this.k);

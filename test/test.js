@@ -2,23 +2,9 @@
 
 const ExpectationMaximization = require('..');
 const MG = require('../src/MultivariateGaussian');
-const Matrix = require('ml-matrix');
+const Matrix = require('ml-matrix').Matrix;
 
 describe('ml-expectation-maximization test', function () {
-
-    it('basic test', function () {
-        var points = [
-            [241, 253],
-            [1240, 214],
-        ];
-        var em = new ExpectationMaximization({
-            seed: 42
-        });
-        em.train(points);
-
-        em.clusters[0].weight.should.be.approximately(.5, 1e-3);
-        em.clusters[1].weight.should.be.approximately(.5, 1e-3);
-    });
 
     function getModel(size = 500) {
         var points = [];
@@ -95,6 +81,20 @@ describe('ml-expectation-maximization test', function () {
         var predictions = newModel.predict([[4, 4], [0, 0]]);
         predictions[0].should.be.equal(0);
         predictions[1].should.be.equal(1);
+    });
+
+    it('case with singular matrix', function () {
+        var points = [
+            [241, 253],
+            [1240, 214],
+        ];
+        var em = new ExpectationMaximization({
+            seed: 42
+        });
+        em.train(points);
+
+        em.clusters[0].weight.should.be.approximately(.5, 1e-3);
+        em.clusters[1].weight.should.be.approximately(.5, 1e-3);
     });
 });
 

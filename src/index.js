@@ -1,13 +1,13 @@
 'use strict';
 
 const Cluster = require('./Cluster');
-const Matrix = require('ml-matrix');
+const Matrix = require('ml-matrix').Matrix;
 const MT = require('ml-xsadd');
+const expectationMaximization = require('expectation-maximization');
 
 const defaultOptions = {
     epsilon: 2e-16,
     numClusters: 2,
-    maxIterations: 1000,
     seed: undefined
 };
 
@@ -21,7 +21,6 @@ class ExpectationMaximization {
      * @param {object} options
      * @param {number} [options.epsilon=2e-16] : Convergence threshold for final solution.
      * @param {number} [options.numClusters=2] : Number of clusters to find.
-     * @param {number} [options.maxIterations=1000] : Maximum number of iterations of the algorithm.
      * @param {number} [options.seed=undefined] : Seed for the random generator
      */
     constructor(options) {
@@ -43,17 +42,15 @@ class ExpectationMaximization {
      * @param {Matrix|Array} features
      */
     train(features) {
-        features = Matrix.checkMatrix(features);
-        var featuresT = features.transpose();
-        var estimations = Matrix.rand(this.numClusters, features.rows, new MT(this.seed).random);
-        for (var i = 0; i < this.maxIterations; ++i) {
-            var clusters = this.maximization(features, featuresT, estimations);
-            var oldEstimations = estimations.clone();
-            estimations = this.expectation(features, clusters);
-            var delta = Matrix.sub(estimations, oldEstimations).abs().max();
-            if (delta <= this.epsilon) {
-                break;
-            }
+        var groups = expectationMaximization(features, this.numClusters);
+        var clusters = new Array(groups.length);
+        for(var i = 0; i < groups.length; ++i) {
+            var currentGroup = groups[i];
+            clusters[i] = new Cluster({
+                weight: currentGroup.weight,
+                mu: [currentGroup.mu],
+                sigma: currentGroup.sigma
+            });
         }
 
         this.clusters = clusters;
@@ -96,10 +93,11 @@ class ExpectationMaximization {
     getClusterData() {
         var clusterData = new Array(this.numClusters);
         for(var i = 0; i < this.numClusters; ++i) {
+            var currentCluster = this.clusters[i];
             clusterData[i] = {
-                weight: this.clusters[i].weight,
-                mean: this.clusters[i].gaussian.mu,
-                covariance: this.clusters[i].gaussian.sigma,
+                weight: currentCluster.weight,
+                mean: currentCluster.gaussian.mu,
+                covariance: currentCluster.gaussian.sigma,
                 prediction: i
             }
         }
