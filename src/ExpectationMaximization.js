@@ -18,7 +18,6 @@ export class ExpectationMaximization {
      * @param {object} options
      * @param {number} [options.epsilon=2e-16] : Convergence threshold for final solution.
      * @param {number} [options.numClusters=2] : Number of clusters to find.
-     * @param {number} [options.seed=undefined] : Seed for the random generator
      */
     constructor(options) {
         options = Object.assign({}, defaultOptions, options);
@@ -79,14 +78,14 @@ export class ExpectationMaximization {
 
     /**
      * Returns an array of objects containing all the information related to each cluster (Note: this method is only valid after running the train method).
-     * Each element of the array contains
+     * Each element of the array contains:
      *
      *  * weight: Weight of the current cluster.
      *  * mean: Current mean of the cluster.
      *  * covariance: Covariance matrix of the cluster.
      *  * prediction: prediction label associated with the cluster.
      *
-     * @return {Array}
+     * @return {Array} - Array with information of each cluster
      */
     getClusterData() {
         var clusterData = new Array(this.numClusters);
