@@ -1,9 +1,6 @@
-'use strict';
+import {Matrix, inverse} from 'ml-matrix';
 
-const Matrix = require('ml-matrix').Matrix;
-const inverse = require('ml-matrix').inverse;
-
-class MultivariateGaussian {
+export class MultivariateGaussian {
     /**
      * @private
      *
@@ -95,5 +92,3 @@ class MultivariateGaussian {
         return new MultivariateGaussian(model, true);
     }
 }
-
-module.exports = MultivariateGaussian;
