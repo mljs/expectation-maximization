@@ -2,12 +2,6 @@ import {Cluster} from './Cluster';
 import Matrix from 'ml-matrix';
 import expectationMaximization from 'expectation-maximization';
 
-const defaultOptions = {
-    epsilon: 2e-16,
-    numClusters: 2,
-    seed: undefined
-};
-
 /**
  * @class ExpectationMaximization
  */
@@ -19,12 +13,13 @@ export class ExpectationMaximization {
      * @param {number} [options.epsilon=2e-16] : Convergence threshold for final solution.
      * @param {number} [options.numClusters=2] : Number of clusters to find.
      */
-    constructor(options) {
-        options = Object.assign({}, defaultOptions, options);
-        this.epsilon = options.epsilon;
-        this.numClusters = options.numClusters;
-        this.maxIterations = options.maxIterations;
-        this.seed = options.seed;
+    constructor(options = {}) {
+        const {
+            epsilon = 2e-16,
+            numClusters = 2
+        } = options;
+        this.epsilon = epsilon;
+        this.numClusters = numClusters;
         if (options.model === 'em-gmm') {
             this.clusters = new Array(this.numClusters);
             for (var i = 0; i < this.numClusters; ++i) {
@@ -111,9 +106,7 @@ export class ExpectationMaximization {
             model: 'em-gmm',
             clusters: this.clusters,
             epsilon: this.epsilon,
-            numClusters: this.numClusters,
-            maxIterations: this.maxIterations,
-            seed: this.seed
+            numClusters: this.numClusters
         };
     }
 
