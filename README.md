@@ -46,9 +46,9 @@ var newEM = EM.load(model);
 
 [npm-image]: https://img.shields.io/npm/v/ml-expectation-maximization.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/ml-expectation-maximization
-[travis-image]: https://img.shields.io/travis/mljs/ml-expectation-maximization/master.svg?style=flat-square
-[travis-url]: https://travis-ci.org/mljs/ml-expectation-maximization
-[david-image]: https://img.shields.io/david/mljs/ml-expectation-maximization.svg?style=flat-square
-[david-url]: https://david-dm.org/mljs/ml-expectation-maximization
+[travis-image]: https://img.shields.io/travis/mljs/expectation-maximization/master.svg?style=flat-square
+[travis-url]: https://travis-ci.org/mljs/expectation-maximization
+[david-image]: https://img.shields.io/david/mljs/expectation-maximization.svg?style=flat-square
+[david-url]: https://david-dm.org/mljs/expectation-maximization
 [download-image]: https://img.shields.io/npm/dm/ml-expectation-maximization.svg?style=flat-square
 [download-url]: https://npmjs.org/package/ml-expectation-maximization
