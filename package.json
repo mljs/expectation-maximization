@@ -1,6 +1,6 @@
 {
   "name": "ml-expectation-maximization",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Expectation Maximization algorithm",
   "main": "lib/ExpectationMaximization.js",
   "module": "src/ExpectationMaximization.js",
