@@ -27,7 +27,7 @@ export class MultivariateGaussian {
                 this.sigmaInv = inverse(this.sigma);
                 var sqrt2PI = Math.sqrt(Math.PI * 2);
                 this.coeff = 1 / (Math.pow(sqrt2PI, this.k) * Math.sqrt(det));
-                if (!(isFinite(det) && det > 0 && isFinite(this.sigmaInv[0][0]))) {
+                if (!(Number.isFinite(det) && det > 0 && Number.isFinite(this.sigmaInv[0][0]))) {
                     throw new Error('Infinte determinant for Multivariate gaussian');
                 }
             } catch (e) {

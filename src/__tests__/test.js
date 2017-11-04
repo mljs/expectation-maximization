@@ -1,4 +1,4 @@
-import {ExpectationMaximization} from '..';
+import {ExpectationMaximization} from '../ExpectationMaximization';
 import {MultivariateGaussian as MG} from '../MultivariateGaussian';
 import Matrix from 'ml-matrix';
 
