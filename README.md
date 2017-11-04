@@ -15,8 +15,9 @@ of Ophir LOJKINE, also using his multivariate gaussian [link](https://github.com
 ## Example
 
 ```js
-const EM = require('ml-expectation-maximization');
-em.train(data); // data is a Training matrix
+const ExpectationMaximization = require('ml-expectation-maximization').ExpectationMaximization;
+const em = new ExpectationMaximization();
+em.train(data); // data is a training matrix
 em.predict(toPredict); // data matrix to predict
 
 /*

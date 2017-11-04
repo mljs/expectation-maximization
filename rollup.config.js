@@ -1,7 +1,7 @@
 export default {
-    input: 'src/index.js',
+    input: 'src/ExpectationMaximization.js',
     output: {
         format: 'cjs',
-        output: 'lib/index.js'
+        file: 'lib/ExpectationMaximization.js'
     }
 };
